@@ -267,69 +267,77 @@ export default function CameraPanel({
 
       {/* Camera Viewport Stages Container */}
       <div className={`dual-camera-container ${viewMode}`}>
-        {/* Hidden video element supplying raw frames */}
-        <video
-          ref={videoRef}
-          playsInline
-          muted
-          style={{ position: 'absolute', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
-        />
-
-        {/* 1. Optical Camera Viewport */}
-        {(viewMode === 'split' || viewMode === 'optical') && (
-          <div className="camera-viewport-card optical-card">
-            <div className="viewport-badge">
-              <Eye size={13} />
-              <span>OPTICAL SEED CAMERA</span>
-            </div>
-
-            <div className="camera-stage-container">
-              {isCameraActive ? (
-                <>
-                  <canvas ref={canvasRef} className="camera-overlay-canvas" />
-                </>
-              ) : (
-                <div className="camera-idle-placeholder">
-                  <Video size={40} strokeWidth={1.5} />
-                  <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>Optical Camera Offline</p>
-                  <p style={{ fontSize: '0.75rem' }}>
-                    Click <strong>START CAMERA</strong> below to activate
-                  </p>
-                </div>
-              )}
-            </div>
-            <div className="viewport-footer-note">
-              Target: Black seed in cardboard testing box
-            </div>
+        {/* 1. Optical Camera Viewport (Real Camera Feed + CV Overlays) */}
+        <div
+          className="camera-viewport-card optical-card"
+          style={{ display: (viewMode === 'split' || viewMode === 'optical') ? 'flex' : 'none' }}
+        >
+          <div className="viewport-badge">
+            <Eye size={13} />
+            <span>OPTICAL SEED CAMERA</span>
           </div>
-        )}
 
-        {/* 2. Thermal Infrared Camera Viewport */}
-        {(viewMode === 'split' || viewMode === 'thermal') && (
-          <div className="camera-viewport-card thermal-card">
-            <div className="viewport-badge thermal">
-              <Flame size={13} />
-              <span>THERMAL INFRARED (IR FLIR)</span>
-            </div>
+          <div className="camera-stage-container">
+            <video
+              ref={videoRef}
+              className="camera-video"
+              playsInline
+              muted
+              autoPlay
+              style={{ display: isCameraActive ? 'block' : 'none' }}
+            />
+            <canvas
+              ref={canvasRef}
+              className="camera-overlay-canvas"
+              style={{ display: isCameraActive ? 'block' : 'none' }}
+            />
 
-            <div className="camera-stage-container thermal-stage">
-              {isCameraActive ? (
-                <canvas ref={thermalCanvasRef} className="camera-overlay-canvas" />
-              ) : (
-                <div className="camera-idle-placeholder">
-                  <Flame size={40} strokeWidth={1.5} color="#ea580c" />
-                  <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>Thermal Imaging Offline</p>
-                  <p style={{ fontSize: '0.75rem' }}>
-                    False-color radiometric heatmap activates with camera
-                  </p>
-                </div>
-              )}
-            </div>
-            <div className="viewport-footer-note">
-              Calibration: ε = 0.95 | Scaled with DS18B20 probe
-            </div>
+            {!isCameraActive && (
+              <div className="camera-idle-placeholder">
+                <Video size={40} strokeWidth={1.5} />
+                <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>Optical Camera Offline</p>
+                <p style={{ fontSize: '0.75rem' }}>
+                  Click <strong>START CAMERA</strong> below to activate
+                </p>
+              </div>
+            )}
           </div>
-        )}
+          <div className="viewport-footer-note">
+            Target: Black seed in cardboard testing box
+          </div>
+        </div>
+
+        {/* 2. Thermal Infrared Camera Viewport (Radiometric False-Color FLIR) */}
+        <div
+          className="camera-viewport-card thermal-card"
+          style={{ display: (viewMode === 'split' || viewMode === 'thermal') ? 'flex' : 'none' }}
+        >
+          <div className="viewport-badge thermal">
+            <Flame size={13} />
+            <span>THERMAL INFRARED (IR FLIR)</span>
+          </div>
+
+          <div className="camera-stage-container thermal-stage">
+            <canvas
+              ref={thermalCanvasRef}
+              className="camera-overlay-canvas"
+              style={{ display: isCameraActive ? 'block' : 'none' }}
+            />
+
+            {!isCameraActive && (
+              <div className="camera-idle-placeholder">
+                <Flame size={40} strokeWidth={1.5} color="#ea580c" />
+                <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>Thermal Imaging Offline</p>
+                <p style={{ fontSize: '0.75rem' }}>
+                  False-color radiometric heatmap activates with camera
+                </p>
+              </div>
+            )}
+          </div>
+          <div className="viewport-footer-note">
+            Calibration: ε = 0.95 | Scaled with DS18B20 probe
+          </div>
+        </div>
       </div>
 
       {/* Camera Toolbar */}
