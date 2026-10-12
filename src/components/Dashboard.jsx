@@ -105,17 +105,17 @@ export default function Dashboard({
       setTestResult({
         success: false,
         status: 'NO_SEED',
-        summary: 'No seed detected. Place a seed inside the camera testing area.',
+        summary: 'No black seed detected. Place a black seed inside the cardboard testing area.',
         observations: [],
         viabilityPrediction: {
           isAvailable: false,
           classification: 'INCONCLUSIVE',
-          message: 'No seed detected in testing area.',
+          message: 'No black seed detected in cardboard test area.',
           disclaimer: 'Seed positioning required before calculation can proceed.'
         }
       });
       setValidationIssues([
-        'No seed detected. Place a seed inside the camera testing area.'
+        'No black seed detected. Place a black seed inside the cardboard testing area.'
       ]);
       return;
     }
@@ -195,6 +195,7 @@ export default function Dashboard({
             onCameraStateChange={handleCameraStateChange}
             latestAnalysis={latestAnalysis}
             testingStatus={testingStatus}
+            sensorData={sensorData}
           />
 
           <ResultPanel

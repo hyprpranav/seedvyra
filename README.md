@@ -139,13 +139,31 @@ Open `http://localhost:3000/` in Google Chrome or Microsoft Edge.
 
 ---
 
-## 7. Computer Vision & Scientific Viability Policy
+## 7. Dual Vision: Optical Black Seed CV & Thermal Infrared Imaging
 
-### Scientific Integrity & Non-Fabrication
+### A. Specialized Black Seed Detection in Cardboard Testing Box
+- **Substrate Surface**: The system calibrates for a standard cardboard testing box aperture (kraft / tan / brown surface).
+- **Black Seed Identification**: Specifically isolates dark/black seed clusters ($R < 75, G < 75, B < 75$) contrasting against the cardboard backdrop.
+- **Morphology Metrics**: Computes physical seed bounding box ($W \times H$ px), area, circularity/roundness factor, aspect ratio, and uniformity.
+
+### B. Online-Based ML Model (Person & Scene Detection)
+- Powered by client-side **TensorFlow.js & COCO-SSD** loaded on-demand.
+- Detects and highlights humans with a dedicated **`PERSON IDENTIFIED (Online ML Model)`** banner and purple tracking bounding box, differentiating background persons from the test subject.
+
+### C. Radiometric Thermal Infrared Camera (IR FLIR Simulation)
+- Maps optical radiance and calibrated probe telemetry ($T_{sample}$ from DS18B20 & $T_{ambient}$ from DHT11) into a real-time false-color thermal heatmap.
+- **Palettes Supported**:
+  - `Ironbow (FLIR)`: Deep purple $\rightarrow$ red $\rightarrow$ amber $\rightarrow$ white-hot
+  - `Inferno`: Radiometric dark purple to fiery gold
+  - `Rainbow`: Standard multi-hue thermal gradient
+  - `White-Hot`: Monochrome thermal radiance
+- **Radiometric HUD**: Real-time center spot temperature readout ($T_{spot}$ in °C), calibrated temperature scale bar (Min $\rightarrow$ Max °C), and organic seed coat emissivity factor ($\varepsilon = 0.95$).
+
+### D. Scientific Integrity & Non-Fabrication
 SEEDVYRA rigorously distinguishes between:
-1. **Seed detection**: Optical confirmation that an object with seed dimensions is positioned in the inspection reticle.
-2. **Visible seed condition**: Quantitative morphological metrics (width, height, area in pixels, aspect ratio, circularity index, surface uniformity).
-3. **Sensor measurements**: Environmental temperature, humidity, sample temperature, and raw RGB/Clear photodiode counts.
+1. **Seed detection**: Optical confirmation that a black seed is placed in the cardboard box reticle.
+2. **Visible seed condition**: Quantitative morphological metrics (width, height, area, circularity, surface uniformity).
+3. **Sensor measurements**: Environmental temperature, humidity, sample temperature, and raw RGB/Clear counts.
 4. **Predicted viability**: Requires a calibrated, scientifically validated crop-specific machine learning model.
 5. **Confirmed germination**: Traditional physiological laboratory germination tests.
 
