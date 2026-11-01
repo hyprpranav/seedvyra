@@ -11,7 +11,12 @@ export default function App() {
     simulated: false
   });
   const [sensorData, setSensorData] = useState(null);
-  const [relayStates, setRelayStates] = useState({ relay1: 0, relay2: 0 });
+  const [relayStates, setRelayStates] = useState({
+    relay1: 0,
+    relay2: 0,
+    relay3: 0,
+    relay4: 0
+  });
   const [hardwareError, setHardwareError] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
@@ -24,8 +29,8 @@ export default function App() {
     serialService.onRelayStatus((status) => {
       if (status.relay === 1) {
         setRelayStates((prev) => ({ ...prev, relay1: status.state }));
-      } else if (status.relay === 2) {
-        setRelayStates((prev) => ({ ...prev, relay2: status.state }));
+      } else if (status.relay >= 2 && status.relay <= 4) {
+        setRelayStates((prev) => ({ ...prev, [`relay${status.relay}`]: status.state }));
       }
     });
 
@@ -64,7 +69,7 @@ export default function App() {
   const handleDisconnect = async () => {
     await serialService.disconnect();
     setSensorData(null);
-    setRelayStates({ relay1: 0, relay2: 0 });
+    setRelayStates({ relay1: 0, relay2: 0, relay3: 0, relay4: 0 });
   };
 
   // Toggle Hardware Simulation
@@ -80,8 +85,7 @@ export default function App() {
   // Toggle Relay command
   const handleToggleRelay = useCallback(
     async (relayNum) => {
-      const currentState =
-        relayNum === 1 ? relayStates.relay1 : relayStates.relay2;
+      const currentState = relayStates[`relay${relayNum}`] || 0;
       const targetState = currentState === 1 ? 0 : 1;
       await serialService.setRelay(relayNum, targetState);
     },
@@ -126,7 +130,7 @@ export default function App() {
 
       <footer className="site-footer">
         <p>
-          <strong>SEEDVYRA</strong> — Smart Seed Viability Analysis System | ESP32 DevKit (GPIO 4, 16, 21, 22, 26, 27) | Web Serial API @ 115200 baud
+          <strong>SEEDVYRA</strong> — Smart Seed Viability Analysis System | ESP32 DevKit (GPIO 4, 16, 21, 22, 25, 26, 27, 33) | Web Serial API @ 115200 baud
         </p>
         <p style={{ marginTop: '0.25rem', color: '#94a3b8' }}>
           Physical observations & optical telemetry reflect empirical measurements. Predictive germination classifications require crop-specific model calibration.

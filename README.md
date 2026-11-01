@@ -45,7 +45,7 @@ The system performs:
 | **DS18B20 Probe** | Sample-stage contact surface temperature (°C) | GPIO 16 (Dallas 1-Wire) | 3.3V (requires 4.7kΩ pull-up) |
 | **TCS34725** | High-precision RGB color and clear lux photodiode | I2C (SDA: 21, SCL: 22) | 3.3V |
 | **0.96" I2C OLED** | Real-time device-side status monitor (SSD1306) | I2C (SDA: 21, SCL: 22) | 3.3V / 5V |
-| **2-Channel Relay** | Switched actuators (Relay 1: Lighting, Relay 2: Aux) | GPIO 26 & 27 | 5V Coil VCC / Active LOW |
+| **4-Channel Relay** | Switched actuators (UV light, fan, water mist, medicine mist) | GPIO 25, 26, 27 & 33 | 5V Coil VCC / Active LOW |
 | **Laptop / Webcam** | Seed macro image capture & visual reticle inspection | MediaDevices API | Native USB |
 
 ---
@@ -60,11 +60,13 @@ The system performs:
 | **TCS34725 SCL** | **GPIO 22** | Shared I2C clock bus. |
 | **OLED SDA** | **GPIO 21** | Shared I2C data bus (Address: `0x3C` or `0x3D`). |
 | **OLED SCL** | **GPIO 22** | Shared I2C clock bus. |
-| **Relay 1 IN1** | **GPIO 26** | Target illumination light control. Active-LOW logic. |
-| **Relay 2 IN2** | **GPIO 27** | Auxiliary switching output. Active-LOW logic (Default: OFF). |
+| **Relay 1 IN1** | **GPIO 26** | UV light control. Active-LOW logic. |
+| **Relay 2 IN2** | **GPIO 27** | Ventilation fan control. Active-LOW logic. |
+| **Relay 3 IN3** | **GPIO 25** | Water mist maker control. Active-LOW logic. |
+| **Relay 4 IN4** | **GPIO 33** | Medicine mist maker control. Active-LOW logic. |
 | **GND** | **GND** | Common ground connected across ESP32, sensors, and relay module. |
 
-> **Relay Safety Notice:** Standard relay breakout boards use optocoupled **active-LOW** trigger inputs (`LOW` activates the relay coil; `HIGH` de-activates it). The firmware initializes both GPIO 26 and 27 to `HIGH` upon startup to guarantee both relays remain safely **OFF** at boot.
+> **Relay Safety Notice:** Standard relay breakout boards use optocoupled **active-LOW** trigger inputs (`LOW` activates the relay coil; `HIGH` de-activates it). The firmware initializes GPIO 25, 26, 27, and 33 to `HIGH` upon startup to guarantee all relays remain safely **OFF** at boot.
 
 ---
 
@@ -83,7 +85,7 @@ The system performs:
 ```json
 {"type":"relay","relay":1,"state":1}
 ```
-- `relay`: `1` (Lighting Control) or `2` (Auxiliary Channel)
+- `relay`: `1` (UV Light), `2` (Ventilation Fan), `3` (Water Mist Maker), or `4` (Medicine Mist Maker)
 - `state`: `1` (ON) or `0` (OFF)
 
 ### C. Relay Acknowledgement (ESP32 to Browser)

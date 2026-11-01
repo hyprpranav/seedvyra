@@ -265,7 +265,7 @@ class SerialService {
 
   /**
    * Switch relay state
-   * @param {number} relay 1 or 2
+  * @param {number} relay 1 through 4
    * @param {number} state 0 (OFF) or 1 (ON)
    */
   async setRelay(relay, state) {

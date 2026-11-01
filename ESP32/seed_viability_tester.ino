@@ -10,7 +10,7 @@
  * 3. DS18B20 - Precision Sample-Plate Temperature Sensor
  * 4. TCS34725 - I2C RGB + Clear Light Sensor (Color Temperature & Lux)
  * 5. 0.96" I2C OLED Display (SSD1306 128x64 or 128x32 compatible)
- * 6. 2-Channel Relay Module (Optocoupled, Active-LOW standard)
+ * 6. 4-Channel Relay Module (Optocoupled, Active-LOW standard)
  * 
  * Serial Protocol: 115200 Baud, newline-terminated JSON messages
  * Output Telemetry:
@@ -53,12 +53,14 @@
 #define PIN_I2C_SDA         21      // GPIO 21 (SDA)
 #define PIN_I2C_SCL         22      // GPIO 22 (SCL)
 
-// Relay Controls (2-Channel Module)
+// Relay Controls (4-Channel Module)
 // NOTE: Standard relay breakout boards use ACTIVE-LOW logic:
 //   LOW (0V) -> Relay Coil ENERGIZED (ON / COM connected to NO)
 //   HIGH (3.3V) -> Relay Coil DE-ENERGIZED (OFF / COM connected to NC)
-#define PIN_RELAY_1         26      // GPIO 26: Relay 1 (Target Lighting Control)
-#define PIN_RELAY_2         27      // GPIO 27: Relay 2 (Auxiliary Control)
+#define PIN_RELAY_1         26      // GPIO 26: UV light control
+#define PIN_RELAY_2         27      // GPIO 27: Ventilation fan control
+#define PIN_RELAY_3         25      // GPIO 25: Water mist maker control
+#define PIN_RELAY_4         33      // GPIO 33: Medicine mist maker control
 #define RELAY_ACTIVE_LEVEL  LOW     // Set to LOW for Active-LOW relays, HIGH for Active-HIGH
 #define RELAY_INACTIVE_LEVEL HIGH
 
@@ -95,6 +97,8 @@ bool ds18b20Available = false;
 // Relay states (0 = OFF, 1 = ON)
 int relay1State = 0;
 int relay2State = 0;
+int relay3State = 0;
+int relay4State = 0;
 
 // Timing counters
 unsigned long lastTelemetryMillis = 0;
@@ -112,10 +116,16 @@ void setup() {
   // Initialize Relays in SAFE OFF STATE immediately
   pinMode(PIN_RELAY_1, OUTPUT);
   pinMode(PIN_RELAY_2, OUTPUT);
+  pinMode(PIN_RELAY_3, OUTPUT);
+  pinMode(PIN_RELAY_4, OUTPUT);
   digitalWrite(PIN_RELAY_1, RELAY_INACTIVE_LEVEL);
   digitalWrite(PIN_RELAY_2, RELAY_INACTIVE_LEVEL);
+  digitalWrite(PIN_RELAY_3, RELAY_INACTIVE_LEVEL);
+  digitalWrite(PIN_RELAY_4, RELAY_INACTIVE_LEVEL);
   relay1State = 0;
   relay2State = 0;
+  relay3State = 0;
+  relay4State = 0;
 
   // Initialize I2C Bus explicitly on defined pins
   Wire.begin(PIN_I2C_SDA, PIN_I2C_SCL);
@@ -279,7 +289,7 @@ void parseAndExecuteCommand(String jsonStr) {
     return;
   }
 
-  // Extract relay number (1 or 2)
+  // Extract relay number (1 to 4)
   int relayIndex = -1;
   int relayPos = jsonStr.indexOf("\"relay\"");
   if (relayPos != -1) {
@@ -304,7 +314,7 @@ void parseAndExecuteCommand(String jsonStr) {
   }
 
   // Validate inputs strictly
-  if ((relayIndex == 1 || relayIndex == 2) && (targetState == 0 || targetState == 1)) {
+  if ((relayIndex >= 1 && relayIndex <= 4) && (targetState == 0 || targetState == 1)) {
     bool success = setRelayState(relayIndex, targetState);
     // Send acknowledgement
     Serial.println("{\"type\":\"relay_status\",\"relay\":" + String(relayIndex) +
@@ -319,13 +329,21 @@ void parseAndExecuteCommand(String jsonStr) {
  * Execute validated relay state change
  */
 bool setRelayState(int relayNum, int state) {
-  int pin = (relayNum == 1) ? PIN_RELAY_1 : PIN_RELAY_2;
+  int pin;
+  if (relayNum == 1) pin = PIN_RELAY_1;
+  else if (relayNum == 2) pin = PIN_RELAY_2;
+  else if (relayNum == 3) pin = PIN_RELAY_3;
+  else if (relayNum == 4) pin = PIN_RELAY_4;
+  else return false;
+
   int level = (state == 1) ? RELAY_ACTIVE_LEVEL : RELAY_INACTIVE_LEVEL;
 
   digitalWrite(pin, level);
 
   if (relayNum == 1) relay1State = state;
   if (relayNum == 2) relay2State = state;
+  if (relayNum == 3) relay3State = state;
+  if (relayNum == 4) relay4State = state;
 
   return true;
 }
